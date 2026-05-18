@@ -1,13 +1,11 @@
 #pragma once
+
 #include <cstdint>
+#include <string>
+
 namespace XX::AST {
 
-enum class Kind {
-  EXPR,
-  BINARY_EXPR,
-  INT_LITERAL,
-  FLOAT_LITERAL,
-};
+enum class Kind { EXPR, BINARY_EXPR, INT_LITERAL, FLOAT_LITERAL, VAR_DECLR };
 
 enum class Type {
   INT8,
@@ -41,6 +39,8 @@ public:
   ~Expr() {}
 };
 
+// is op as a char is really a good choice?
+// man I'll never leave the project for 1 month ever again I forgot everything
 class BinaryExpr : public Expr {
 private:
   char op;
@@ -86,6 +86,30 @@ public:
       : Expr(Kind::FLOAT_LITERAL, l, c), type(t), value(v) {}
 
   ~FloatLiteral() {}
+};
+
+class Stmt : public Node {
+public:
+  using Node::Node;
+  ~Stmt() {}
+};
+
+class VarDeclr : public Stmt {
+private:
+  Type type;
+  std::string varName;
+  Expr
+      *whatShouldInameIt; // What should I name this variable???? English 2 / 10
+
+public:
+  inline Type getType() { return type; }
+  inline std::string getVarName() { return varName; }
+  inline Expr *getExpr() { return whatShouldInameIt; }
+
+  VarDeclr(int l, int c, Type t, std::string n, Expr *init)
+      : Stmt(Kind::VAR_DECLR, l, c), type(t), varName(n),
+        whatShouldInameIt(init) {}
+  ~VarDeclr() {}
 };
 
 } // namespace XX::AST
