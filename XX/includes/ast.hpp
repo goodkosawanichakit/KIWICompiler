@@ -18,9 +18,12 @@ enum class Type {
   FLOAT64
 };
 
+// base class of all Node idk it's just that, do I really need to comment?
 class Node {
 private:
   Kind kind;
+  // is line, number really necessary?
+  // do I need to umm contain? Have length?
   int line;
   int column;
 
@@ -33,14 +36,24 @@ public:
   ~Node() {}
 };
 
+// Expr class and yeah the name already told it propose.
 class Expr : public Node {
 public:
   using Node::Node;
   ~Expr() {}
 };
 
-// is op as a char is really a good choice?
-// man I'll never leave the project for 1 month ever again I forgot everything
+// it's a statement duh.
+class Stmt : public Node {
+public:
+  using Node::Node;
+  ~Stmt() {}
+};
+
+// yet again the name already told it propose.
+// anyway is op as a char is really a good choice?
+// man I'll never leave the project for 1 month ever again, I surely forgot
+// everything
 class BinaryExpr : public Expr {
 private:
   char op;
@@ -58,6 +71,9 @@ public:
   ~BinaryExpr() {}
 };
 
+// why do I store in int64_t bruh.
+// cause it's the maximum that we can use?
+// anyways to remind future me this is the terminal of BNF ,FloatLiteral too
 class IntLiteral : public Expr {
 private:
   Type type;
@@ -86,12 +102,6 @@ public:
       : Expr(Kind::FLOAT_LITERAL, l, c), type(t), value(v) {}
 
   ~FloatLiteral() {}
-};
-
-class Stmt : public Node {
-public:
-  using Node::Node;
-  ~Stmt() {}
 };
 
 class VarDeclr : public Stmt {
