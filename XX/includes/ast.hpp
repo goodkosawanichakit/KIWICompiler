@@ -76,30 +76,26 @@ public:
 // anyways to remind future me this is the terminal of BNF ,FloatLiteral too
 class IntLiteral : public Expr {
 private:
-  Type type;
   int64_t value;
 
 public:
-  inline Type getType() { return type; }
   inline int64_t getValue() { return value; }
 
-  IntLiteral(int l, int c, Type t, int64_t v)
-      : Expr(Kind::INT_LITERAL, l, c), type(t), value(v) {}
+  IntLiteral(int l, int c, int64_t v)
+      : Expr(Kind::INT_LITERAL, l, c), value(v) {}
 
   ~IntLiteral() {}
 };
 
 class FloatLiteral : public Expr {
 private:
-  Type type;
   double value;
 
 public:
-  inline Type getType() { return type; }
   inline double getValue() { return value; }
 
-  FloatLiteral(int l, int c, Type t, double v)
-      : Expr(Kind::FLOAT_LITERAL, l, c), type(t), value(v) {}
+  FloatLiteral(int l, int c, double v)
+      : Expr(Kind::FLOAT_LITERAL, l, c), value(v) {}
 
   ~FloatLiteral() {}
 };

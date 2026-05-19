@@ -56,7 +56,7 @@ XX::AST::Node *XX::Parser::parse() {
   return module;
 }
 
-// VarDeclr = type identifiers "="  Expr ";"
+// VarDeclr = type identifiers "="  (Expr | BinaryExpr) ";"
 XX::AST::VarDeclr *XX::Parser::parseVarDeclr() {
   AST::Type t = matchType(currentToken.type);
 
@@ -73,7 +73,15 @@ XX::AST::VarDeclr *XX::Parser::parseVarDeclr() {
   return;
 }
 
-// What's the Expresseion?
+// What's the Expression?
 // I don't have any idea either, JK
 // Expr = IntLiteral \ FloatLiteral
-XX::AST::Expr *XX::Parser::parseExpr() { return nullptr; }
+XX::AST::Expr *XX::Parser::parseExpr() {
+  std::string literal = source.substr(currentToken.offset, currentToken.length);
+  switch (currentToken.type) {
+  case XX::TokenType::KW_INT8:
+    return new AST::IntLiteral(0, 0, AST::Type::INT8, std::stoll(literal));
+  default: // prob unreachable
+    return nullptr;
+  }
+}
