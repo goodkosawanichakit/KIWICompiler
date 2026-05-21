@@ -1,55 +1,109 @@
+#include "ast.hpp"
+#include "parser.hpp"
 #include "scanner.hpp"
+#include <filesystem>
+#include <fstream>
 #include <iostream>
-#include <string>
-#include <vector>
 
-int tests_passed = 0;
-int tests_failed = 0;
+void traverse(XX::AST::Node *root);
+void handleVarDeclr(XX::AST::VarDeclr *root);
+void handleExpr(XX::AST::Expr *root);
+void handleIntLiteral(XX::AST::IntLiteral *TSnotRootAnymore);
 
-void testScanner(const std::string &test_name, const std::string &source,
-                 const std::vector<XX::TokenType> &expected_tokens) {
-  XX::Scanner scanner(source);
-
-  for (size_t i = 0; i < expected_tokens.size(); ++i) {
-    XX::Token token = scanner.scanToken();
-
-    if (token.type != expected_tokens[i]) {
-      std::cout << "[FAILED] " << test_name << " at token index " << i << "\n";
-      std::cout << "  Expected type: " << static_cast<int>(expected_tokens[i])
-                << ", Got: " << static_cast<int>(token.type) << " (Lexeme: '"
-                << token.lexeme << "')\n";
-      tests_failed++;
-      return;
-    }
+std::string matchEnumKind(XX::AST::Kind k) {
+  switch (k) {
+  case XX::AST::Kind::EXPR:
+    return "EXPR";
+  case XX::AST::Kind::BINARY_EXPR:
+    return "BINARY_EXPR";
+  case XX::AST::Kind::INT_LITERAL:
+    return "INT_LITERAL";
+  case XX::AST::Kind::FLOAT_LITERAL:
+    return "FLOAT_LITERAL";
+  case XX::AST::Kind::VAR_DECLR:
+    return "VAR_DECLR";
   }
-
-  XX::Token eof_token = scanner.scanToken();
-  if (eof_token.type != XX::TokenType::TOKEN_EOF) {
-    std::cout << "[FAILED] " << test_name << " did not end with TOKEN_EOF.\n";
-    tests_failed++;
-    return;
+  return "UNKNOWN_KIND";
+}
+std::string matchEnumType(XX::AST::Type t) {
+  switch (t) {
+  case XX::AST::Type::INT8:
+    return "INT8";
+  case XX::AST::Type::INT16:
+    return "INT16";
+  case XX::AST::Type::INT32:
+    return "INT32";
+  case XX::AST::Type::INT64:
+    return "INT64";
+  case XX::AST::Type::FLOAT8:
+    return "FLOAT8";
+  case XX::AST::Type::FLOAT16:
+    return "FLOAT16";
+  case XX::AST::Type::FLOAT32:
+    return "FLOAT32";
+  case XX::AST::Type::FLOAT64:
+    return "FLOAT64";
   }
-
-  std::cout << "[OK] " << test_name << "\n";
-  tests_passed++;
+  return "UNKNOWN_TYPE";
 }
 
-int main() {
-  testScanner("Math Operators", "1 + 2.5 * 3",
-              {XX::TokenType::NUMBER_INT, XX::TokenType::PLUS,
-               XX::TokenType::NUMBER_FLOAT, XX::TokenType::STAR,
-               XX::TokenType::NUMBER_INT});
+int main(int argc, char *argv[]) {
+  if (argc < 2)
+    return 1;
 
-  testScanner("Variable Declaration", "int x = 10;",
-              {XX::TokenType::KW_INT, XX::TokenType::IDENTIFIER,
-               XX::TokenType::EQUAL, XX::TokenType::NUMBER_INT,
-               XX::TokenType::SEMICOLON});
+  std::ifstream file(argv[1]);
 
-  testScanner("Range Operator", "1..10",
-              {XX::TokenType::NUMBER_INT, XX::TokenType::DOT_DOT,
-               XX::TokenType::NUMBER_INT});
+  if (!file)
+    return 2;
 
-  std::cout << "\nTest Results: " << tests_passed << " Passed, " << tests_failed
-            << " Failed.\n";
+  std::string source;
+  std::stringstream buffer;
+  buffer << file.rdbuf();
+  source = buffer.str();
+
+  XX::Scanner scanner(source);
+  XX::Parser parser(scanner, source);
+
+  XX::AST::Node *root = parser.parse();
+
+  traverse(root);
+
   return 0;
+}
+
+void handleIntLiteral(XX::AST::IntLiteral *TSnotRootAnymore) {
+  std::cout << "Value: " << TSnotRootAnymore->getValue() << "\n";
+}
+
+void handleExpr(XX::AST::Expr *root) {
+  switch (root->getKind()) {
+  case XX::AST::Kind::INT_LITERAL:
+    handleIntLiteral((XX::AST::IntLiteral *)root);
+    return;
+  case XX::AST::Kind::FLOAT_LITERAL:
+    // it's raining taco
+  default:
+    std::cout << "We shouldn't be here\n";
+  }
+}
+
+void handleVarDeclr(XX::AST::VarDeclr *root) {
+  std::cout << "Type: " << matchEnumType(root->getType())
+            << "| Variable name: " << root->getVarName() << "\n";
+  if (!(root->getExpr()))
+    return;
+  handleExpr(root->getExpr());
+}
+
+void traverse(XX::AST::Node *root) {
+  if (!root)
+    return;
+  switch (root->getKind()) {
+  case XX::AST::Kind::VAR_DECLR:
+    handleVarDeclr((XX::AST::VarDeclr *)root);
+    return;
+  default:
+    std::cout << "How did we even get here\n";
+    return;
+  }
 }
