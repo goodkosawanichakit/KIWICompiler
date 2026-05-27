@@ -15,9 +15,10 @@ private:
   void advance();
   bool match(TokenType t);
   bool isOP();
+  int getBindingPower(TokenType t);
   AST::Type matchType(TokenType t);
   AST::VarDeclr *parseVarDeclr();
-  AST::Expr *parseExpr();
+  AST::Expr *parseExpr(int b);
   AST::BinaryExpr *parseBinaryExpr();
   AST::Expr *parseLiteral();
   AST::IntLiteral *parseIntLiteral();

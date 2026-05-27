@@ -88,28 +88,57 @@ XX::AST::VarDeclr *XX::Parser::parseVarDeclr() {
 
   advance();
 
-  XX::AST::Expr *value = parseExpr();
+  XX::AST::Expr *value = parseExpr(0);
   advance();
   return new AST::VarDeclr(o, l, t, name, value);
 }
 
 // What's the Expression?
 // I don't have any idea either, JK
+// BinaryExpr = Expr "OP" Expr
 // Expr = IntLiteral | FloatLiteral | BinaryExpr | ...
-XX::AST::Expr *XX::Parser::parseExpr() {
+// XX::AST::Expr *XX::Parser::parseExpr() {
+//   AST::Expr *left = parseLiteral();
+//
+//   advance();
+//   if (!isOP())
+//     return left;
+//
+//   uint32_t o = currentToken.offset;
+//   uint16_t l = currentToken.length;
+//   std::string op = source.substr(currentToken.offset, currentToken.length);
+//
+//   advance();
+//   AST::Expr *right = parseExpr();
+//
+//   return new AST::BinaryExpr(o, l, op, left, right);
+// }
+int XX::Parser::getBindingPower(XX::TokenType t) {
+  switch (t) {
+  case TokenType::PLUS:
+  case TokenType::MINUS:
+    return 10;
+  case TokenType::STAR:
+  case TokenType::SLASH:
+    return 20;
+  default:
+    return 0;
+  }
+}
+
+XX::AST::Expr *XX::Parser::parseExpr(int b) {
   AST::Expr *left = parseLiteral();
-
   advance();
-  if (!isOP())
-    return left;
-
-  uint32_t o = currentToken.offset;
-  uint16_t l = currentToken.length;
-  std::string op = source.substr(currentToken.offset, currentToken.length);
-
-  advance();
-  AST::Expr *right = parseExpr();
-
+  uint32_t o;
+  uint16_t l;
+  std::string op;
+  AST::Expr *right;
+  while (b < getBindingPower(currentToken.type)) {
+    o = currentToken.offset;
+    l = currentToken.length;
+    op = source.substr(currentToken.offset, currentToken.length);
+    right = parseExpr(getBindingPower(currentToken.type));
+  }
   return new AST::BinaryExpr(o, l, op, left, right);
 }
 
@@ -121,7 +150,7 @@ XX::AST::Expr *XX::Parser::parseLiteral() {
     return parseFloatLiteral();
   default:
     // TODO: DMC short for developer may cry. although I'm just a vibe coder
-    // (tho this code not vibe coded but I do talking with llm alot)
+    // JK JK (about I'm a vibe coder tho not DMC)
     return nullptr;
   }
 }
