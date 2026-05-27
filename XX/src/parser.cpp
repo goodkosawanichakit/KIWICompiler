@@ -136,6 +136,7 @@ XX::AST::Expr *XX::Parser::parseExpr(int b) {
     uint16_t l = currentToken.length;
     std::string op = source.substr(currentToken.offset, currentToken.length);
     int currB = getBindingPower(currentToken.type);
+    advance();
     AST::Expr *right = parseExpr(currB);
     left = new AST::BinaryExpr(o, l, op, left, right);
   }
