@@ -112,9 +112,8 @@ void XX::AST::Dumper::dumpBinaryExpr(BinaryExpr *node) {
 }
 
 void XX::AST::Dumper::dumpUnaryExpr(UnaryExpr *node) {
-  if (!node) {
+  if (!node)
     return;
-  }
 
   std::cout << matchEnumKind(node->getKind()) << " Operator: " << node->getOP()
             << std::endl;

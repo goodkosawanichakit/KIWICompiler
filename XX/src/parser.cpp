@@ -130,7 +130,6 @@ int XX::Parser::getBindingPower(XX::TokenType t) {
 // b is for binding power in case I forget it.
 XX::AST::Expr *XX::Parser::parseExpr(int b) {
   AST::Expr *left = parseLiteral();
-  advance();
   while (b < getBindingPower(currentToken.type)) {
     uint32_t o = currentToken.offset;
     uint16_t l = currentToken.length;
@@ -168,13 +167,15 @@ XX::AST::Expr *XX::Parser::parseLiteral() {
 }
 
 XX::AST::IntLiteral *XX::Parser::parseIntLiteral() {
+  advance();
   return new AST::IntLiteral(
-      currentToken.offset, currentToken.length,
-      std::stoll(source.substr(currentToken.offset, currentToken.length)));
+      previousToken.offset, previousToken.length,
+      std::stoll(source.substr(previousToken.offset, previousToken.length)));
 }
 
 XX::AST::FloatLiteral *XX::Parser::parseFloatLiteral() {
+  advance();
   return new AST::FloatLiteral(
-      currentToken.offset, currentToken.length,
-      std::stod(source.substr(currentToken.offset, currentToken.length)));
+      previousToken.offset, previousToken.length,
+      std::stod(source.substr(previousToken.offset, previousToken.length)));
 }
