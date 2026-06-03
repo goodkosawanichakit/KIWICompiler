@@ -20,6 +20,7 @@ private:
   AST::VarDeclr *parseVarDeclr();
   AST::Expr *parseExpr(int b);
   AST::BinaryExpr *parseBinaryExpr();
+  AST::UnaryExpr *parseUnaryExpr();
   AST::Expr *parseLiteral();
   AST::IntLiteral *parseIntLiteral();
   AST::FloatLiteral *parseFloatLiteral();

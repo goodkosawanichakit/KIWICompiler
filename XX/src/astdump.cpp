@@ -9,6 +9,8 @@ std::string matchEnumKind(XX::AST::Kind k) {
     return "EXPR";
   case XX::AST::Kind::BINARY_EXPR:
     return "BINARY_EXPR";
+  case XX::AST::Kind::UNARY_EXPR:
+    return "UNARY_EXPR";
   case XX::AST::Kind::INT_LITERAL:
     return "INT_LITERAL";
   case XX::AST::Kind::FLOAT_LITERAL:
@@ -93,6 +95,8 @@ void XX::AST::Dumper::dumpExpr(Expr *node) {
     return dumpIntLiteral((IntLiteral *)node);
   case Kind::BINARY_EXPR:
     return dumpBinaryExpr((BinaryExpr *)node);
+  case Kind::UNARY_EXPR:
+    return dumpUnaryExpr((UnaryExpr *)node);
   default:
     std::cout << "How did you get here." << std::endl;
   }
@@ -105,6 +109,17 @@ void XX::AST::Dumper::dumpBinaryExpr(BinaryExpr *node) {
             << std::endl;
   dumpExpr(node->getLExpr());
   dumpExpr(node->getRExpr());
+}
+
+void XX::AST::Dumper::dumpUnaryExpr(UnaryExpr *node) {
+  if (!node) {
+    return;
+  }
+
+  std::cout << matchEnumKind(node->getKind()) << " Operator: " << node->getOP()
+            << std::endl;
+
+  dumpExpr(node->getExpr());
 }
 
 void XX::AST::Dumper::dumpIntLiteral(IntLiteral *node) {

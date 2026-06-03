@@ -143,8 +143,19 @@ XX::AST::Expr *XX::Parser::parseExpr(int b) {
   return left;
 }
 
+XX::AST::UnaryExpr *XX::Parser::parseUnaryExpr() {
+  uint32_t o = currentToken.offset;
+  uint16_t l = currentToken.length;
+  std::string op = source.substr(currentToken.offset, currentToken.length);
+  advance();
+  AST::Expr *expr = parseExpr(50);
+  return new AST::UnaryExpr(o, l, op, expr);
+}
+
 XX::AST::Expr *XX::Parser::parseLiteral() {
   switch (currentToken.type) {
+  case TokenType::MINUS:
+    return parseUnaryExpr();
   case TokenType::NUMBER_INT:
     return parseIntLiteral();
   case TokenType::NUMBER_FLOAT:

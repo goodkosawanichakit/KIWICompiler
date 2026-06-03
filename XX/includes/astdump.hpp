@@ -11,6 +11,7 @@ private:
   void dumpFloatLiteral(FloatLiteral *node);
   void dumpIntLiteral(IntLiteral *node);
   void dumpBinaryExpr(BinaryExpr *node);
+  void dumpUnaryExpr(UnaryExpr *node);
   void dumpExpr(Expr *node);
   void dumpVarDeclr(VarDeclr *node);
   uint32_t getLine(uint32_t of);

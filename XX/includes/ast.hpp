@@ -5,7 +5,14 @@
 
 namespace XX::AST {
 
-enum class Kind { EXPR, BINARY_EXPR, INT_LITERAL, FLOAT_LITERAL, VAR_DECLR };
+enum class Kind {
+  EXPR,
+  BINARY_EXPR,
+  UNARY_EXPR,
+  INT_LITERAL,
+  FLOAT_LITERAL,
+  VAR_DECLR
+};
 
 enum class Type {
   INT8,
@@ -70,6 +77,18 @@ public:
       : Expr(Kind::BINARY_EXPR, o, l), op(op), LExpr(lexpr), RExpr(rexpr) {}
 
   ~BinaryExpr() {}
+};
+
+class UnaryExpr : public Expr {
+private:
+  std::string op;
+  Expr *expr;
+
+public:
+  inline std::string getOP() { return op; }
+  inline Expr *getExpr() { return expr; }
+  UnaryExpr(uint32_t o, uint16_t l, std::string op, Expr *expr)
+      : Expr(Kind::UNARY_EXPR, o, l), op(op), expr(expr) {}
 };
 
 // why do I store in int64_t bruh.
