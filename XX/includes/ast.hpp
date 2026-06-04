@@ -2,10 +2,18 @@
 
 #include <cstdint>
 #include <string>
+#include <vector>
 
 namespace XX::AST {
 
-enum class Kind { EXPR, BINARY_EXPR, INT_LITERAL, FLOAT_LITERAL, VAR_DECLR };
+enum class Kind {
+  EXPR,
+  BINARY_EXPR,
+  UNARY_EXPR,
+  INT_LITERAL,
+  FLOAT_LITERAL,
+  VAR_DECLR
+};
 
 enum class Type {
   INT8,
@@ -19,6 +27,7 @@ enum class Type {
 };
 
 // base class of all Node idk it's just that, do I really need to comment?
+// but wait why did I use differnt type for offset and length???????
 class Node {
 private:
   Kind kind;
@@ -32,6 +41,14 @@ public:
 
   Node(Kind k, uint32_t o, uint16_t l) : kind(k), offset(o), length(l) {}
   ~Node() {}
+};
+
+// AKA Module node, File node.
+// why I named it Forest? cause it contains an array of pointer to tree.
+// many tree = forest
+class Forest {
+public:
+  std::vector<Node *> vec;
 };
 
 // Expr class and yeah the name already told it propose.
@@ -50,27 +67,42 @@ public:
 
 // yet again the name already told it propose.
 // anyway is op as a char is really a good choice?
+// answer to question above: op as a char is ass cause I can't directly use
+// substr so yeah no more char
 // man I'll never leave the project for 1 month ever again, I surely forgot
 // everything
 class BinaryExpr : public Expr {
 private:
-  char op;
+  std::string op;
   Expr *LExpr;
   Expr *RExpr;
 
 public:
-  inline char getOP() { return op; }
+  inline std::string getOP() { return op; }
   inline Expr *getLExpr() { return LExpr; }
   inline Expr *getRExpr() { return RExpr; }
 
-  BinaryExpr(uint32_t o, uint16_t l, char op, Expr *lexpr, Expr *rexpr)
+  BinaryExpr(uint32_t o, uint16_t l, std::string op, Expr *lexpr, Expr *rexpr)
       : Expr(Kind::BINARY_EXPR, o, l), op(op), LExpr(lexpr), RExpr(rexpr) {}
 
   ~BinaryExpr() {}
 };
 
+class UnaryExpr : public Expr {
+private:
+  std::string op;
+  Expr *expr;
+
+public:
+  inline std::string getOP() { return op; }
+  inline Expr *getExpr() { return expr; }
+  UnaryExpr(uint32_t o, uint16_t l, std::string op, Expr *expr)
+      : Expr(Kind::UNARY_EXPR, o, l), op(op), expr(expr) {}
+};
+
 // why do I store in int64_t bruh.
 // cause it's the maximum that we can use?
+// answer to question above: prob yes so we can store any int literal
 // anyways to remind future me this is the terminal of BNF ,FloatLiteral too
 class IntLiteral : public Expr {
 private:

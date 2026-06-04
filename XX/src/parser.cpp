@@ -37,7 +37,20 @@ XX::AST::Type XX::Parser::matchType(XX::TokenType t) {
   }
 }
 
-XX::AST::Node *XX::Parser::parse() {
+bool XX::Parser::isOP() {
+  switch (currentToken.type) {
+  case TokenType::PLUS:
+  case TokenType::MINUS:
+  case TokenType::STAR:
+  case TokenType::SLASH:
+    return true;
+  default:
+    return false;
+  }
+}
+
+XX::AST::Forest *XX::Parser::parse() {
+  AST::Forest *module = new AST::Forest();
   while (currentToken.type != TokenType::TOKEN_EOF) {
     switch (currentToken.type) {
     case TokenType::KW_INT8:
@@ -48,23 +61,25 @@ XX::AST::Node *XX::Parser::parse() {
     case TokenType::KW_FLOAT16:
     case TokenType::KW_FLOAT32:
     case TokenType::KW_FLOAT64:
-      return parseVarDeclr();
+      module->vec.push_back(parseVarDeclr());
       break;
     default:
       // TODO: I don't know what I'm gonna do, C++ make me wanna cry
       return nullptr;
     }
   }
-  return nullptr;
+  return module;
 }
 
 // VarDeclr = type identifiers "="  (Expr | BinaryExpr) ";"
-// BinaryExor is for later cause I'm suck
+// BinaryExpr is for later cause I'm suck
+// P.S I think I'm finish the BinaryExpr tho.
 XX::AST::VarDeclr *XX::Parser::parseVarDeclr() {
   AST::Type t = matchType(currentToken.type);
   uint32_t o = currentToken.offset;
   uint16_t l = currentToken.length;
   advance();
+
   std::string name = source.substr(currentToken.offset, currentToken.length);
 
   advance();
@@ -74,35 +89,81 @@ XX::AST::VarDeclr *XX::Parser::parseVarDeclr() {
 
   advance();
 
-  XX::AST::Expr *value = parseExpr();
+  XX::AST::Expr *value = parseExpr(0);
+  if (!match(TokenType::SEMICOLON))
+    // TODO: same as above todo
+    return nullptr;
 
+  advance();
   return new AST::VarDeclr(o, l, t, name, value);
+}
+
+int XX::Parser::getBindingPower(XX::TokenType t) {
+  switch (t) {
+  case TokenType::PLUS:
+  case TokenType::MINUS:
+    return 10;
+  case TokenType::STAR:
+  case TokenType::SLASH:
+    return 20;
+  default:
+    return 0;
+  }
 }
 
 // What's the Expression?
 // I don't have any idea either, JK
+// BinaryExpr = Expr "OP" Expr
 // Expr = IntLiteral | FloatLiteral | BinaryExpr | ...
-XX::AST::Expr *XX::Parser::parseExpr() {
+// b is for binding power in case I forget it.
+XX::AST::Expr *XX::Parser::parseExpr(int b) {
+  AST::Expr *left = parseLiteral();
+  while (b < getBindingPower(currentToken.type)) {
+    uint32_t o = currentToken.offset;
+    uint16_t l = currentToken.length;
+    std::string op = source.substr(currentToken.offset, currentToken.length);
+    int currB = getBindingPower(currentToken.type);
+    advance();
+    AST::Expr *right = parseExpr(currB);
+    left = new AST::BinaryExpr(o, l, op, left, right);
+  }
+  return left;
+}
+
+XX::AST::UnaryExpr *XX::Parser::parseUnaryExpr() {
+  uint32_t o = currentToken.offset;
+  uint16_t l = currentToken.length;
+  std::string op = source.substr(currentToken.offset, currentToken.length);
+  advance();
+  AST::Expr *expr = parseExpr(50);
+  return new AST::UnaryExpr(o, l, op, expr);
+}
+
+XX::AST::Expr *XX::Parser::parseLiteral() {
   switch (currentToken.type) {
+  case TokenType::MINUS:
+    return parseUnaryExpr();
   case TokenType::NUMBER_INT:
     return parseIntLiteral();
   case TokenType::NUMBER_FLOAT:
     return parseFloatLiteral();
   default:
     // TODO: DMC short for developer may cry. although I'm just a vibe coder
-    // (tho this code node vibe coded but I do talking with llm alot)
+    // JK JK (about I'm a vibe coder tho not DMC)
     return nullptr;
   }
 }
 
 XX::AST::IntLiteral *XX::Parser::parseIntLiteral() {
+  advance();
   return new AST::IntLiteral(
-      currentToken.offset, currentToken.length,
-      std::stoll(source.substr(currentToken.offset, currentToken.length)));
+      previousToken.offset, previousToken.length,
+      std::stoll(source.substr(previousToken.offset, previousToken.length)));
 }
 
 XX::AST::FloatLiteral *XX::Parser::parseFloatLiteral() {
+  advance();
   return new AST::FloatLiteral(
-      currentToken.offset, currentToken.length,
-      std::stod(source.substr(currentToken.offset, currentToken.length)));
+      previousToken.offset, previousToken.length,
+      std::stod(source.substr(previousToken.offset, previousToken.length)));
 }
