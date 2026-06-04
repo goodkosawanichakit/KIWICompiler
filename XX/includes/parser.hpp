@@ -26,7 +26,7 @@ private:
   AST::FloatLiteral *parseFloatLiteral();
 
 public:
-  AST::Node *parse();
+  AST::Forest *parse();
   Parser(Scanner &s, std::string &sc) : scanner(s), source(sc) { advance(); }
   ~Parser() {}
 };

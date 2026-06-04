@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <string>
+#include <vector>
 
 namespace XX::AST {
 
@@ -40,6 +41,14 @@ public:
 
   Node(Kind k, uint32_t o, uint16_t l) : kind(k), offset(o), length(l) {}
   ~Node() {}
+};
+
+// AKA Module node, File node.
+// why I named it Forest? cause it contains an array of pointer to tree.
+// many tree = forest
+class Forest {
+public:
+  std::vector<Node *> vec;
 };
 
 // Expr class and yeah the name already told it propose.
