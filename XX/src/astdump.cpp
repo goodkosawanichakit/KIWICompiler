@@ -63,67 +63,69 @@ uint32_t XX::AST::Dumper::getLine(uint32_t of) {
   return target;
 }
 
-void XX::AST::Dumper::dump(Node *node) {
-  if (!node)
+void XX::AST::Dumper::dump(XX::AST::Forest *module) {
+  if (!module)
     return;
-  switch (node->getKind()) {
-  case Kind::VAR_DECLR:
-    dumpVarDeclr((VarDeclr *)node);
-    break;
-  default:
-    // TODO: IDK what I need to handle in this deafult section.
-    // so todo is I need to think what I'm gonna do
-    std::cout << "You shouldn't be here." << std::endl;
+  for (XX::AST::Node *node : module->vec) {
+    switch (node->getKind()) {
+    case Kind::VAR_DECLR:
+      dumpVarDeclr((VarDeclr *)node, 0);
+      break;
+    default:
+      // TODO: IDK what I need to handle in this deafult section.
+      // so todo is I need to think what I'm gonna do
+      std::cout << "You shouldn't be here." << std::endl;
+    }
   }
 }
 
 // Prob work fine I think
-void XX::AST::Dumper::dumpVarDeclr(VarDeclr *node) {
+void XX::AST::Dumper::dumpVarDeclr(VarDeclr *node, int d) {
   if (!node)
     return;
-  std::cout << matchEnumKind(node->getKind()) << ' '
+  std::cout << std::string(d * 2, ' ') << matchEnumKind(node->getKind()) << ' '
             << matchEnumType(node->getType()) << " Name: " << node->getVarName()
             << std::endl;
-  dumpExpr(node->getExpr());
+  dumpExpr(node->getExpr(), d + 1);
 }
 
-void XX::AST::Dumper::dumpExpr(Expr *node) {
+void XX::AST::Dumper::dumpExpr(Expr *node, int d) {
   if (!node)
     return;
   switch (node->getKind()) {
   case Kind::INT_LITERAL:
-    return dumpIntLiteral((IntLiteral *)node);
+    return dumpIntLiteral((IntLiteral *)node, d);
   case Kind::BINARY_EXPR:
-    return dumpBinaryExpr((BinaryExpr *)node);
+    return dumpBinaryExpr((BinaryExpr *)node, d);
   case Kind::UNARY_EXPR:
-    return dumpUnaryExpr((UnaryExpr *)node);
+    return dumpUnaryExpr((UnaryExpr *)node, d);
   default:
     std::cout << "How did you get here." << std::endl;
   }
 }
 
-void XX::AST::Dumper::dumpBinaryExpr(BinaryExpr *node) {
+void XX::AST::Dumper::dumpBinaryExpr(BinaryExpr *node, int d) {
   if (!node)
     return;
-  std::cout << matchEnumKind(node->getKind()) << " Operator: " << node->getOP()
-            << std::endl;
-  dumpExpr(node->getLExpr());
-  dumpExpr(node->getRExpr());
+  std::cout << std::string(d * 2, ' ') << matchEnumKind(node->getKind())
+            << " Operator: " << node->getOP() << std::endl;
+  dumpExpr(node->getLExpr(), d + 1);
+  dumpExpr(node->getRExpr(), d + 1);
 }
 
-void XX::AST::Dumper::dumpUnaryExpr(UnaryExpr *node) {
+void XX::AST::Dumper::dumpUnaryExpr(UnaryExpr *node, int d) {
   if (!node)
     return;
 
-  std::cout << matchEnumKind(node->getKind()) << " Operator: " << node->getOP()
-            << std::endl;
+  std::cout << std::string(d * 2, ' ') << matchEnumKind(node->getKind())
+            << " Operator: " << node->getOP() << std::endl;
 
-  dumpExpr(node->getExpr());
+  dumpExpr(node->getExpr(), d + 1);
 }
 
-void XX::AST::Dumper::dumpIntLiteral(IntLiteral *node) {
+void XX::AST::Dumper::dumpIntLiteral(IntLiteral *node, int d) {
   if (!node)
     return;
-  std::cout << matchEnumKind(node->getKind()) << " Value: " << node->getValue()
-            << std::endl;
+  std::cout << std::string(d * 2, ' ') << matchEnumKind(node->getKind())
+            << " Value: " << node->getValue() << std::endl;
 }

@@ -23,12 +23,11 @@ int main(int argc, char *argv[]) {
   XX::Scanner scanner(source);
   XX::Parser parser(scanner, source);
 
-  XX::AST::Forest *root = parser.parse();
+  XX::AST::Forest *module = parser.parse();
 
   XX::AST::Dumper dumper(scanner.getLineOffset());
-  dumper.dump(root->vec[0]);
+  dumper.dump(module);
   std::cout << std::endl;
-  dumper.dump(root->vec[1]);
 
   return 0;
 }

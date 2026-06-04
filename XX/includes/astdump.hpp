@@ -8,16 +8,16 @@ class Dumper {
 private:
   const std::vector<uint32_t> &lineOffset;
 
-  void dumpFloatLiteral(FloatLiteral *node);
-  void dumpIntLiteral(IntLiteral *node);
-  void dumpBinaryExpr(BinaryExpr *node);
-  void dumpUnaryExpr(UnaryExpr *node);
-  void dumpExpr(Expr *node);
-  void dumpVarDeclr(VarDeclr *node);
+  void dumpFloatLiteral(FloatLiteral *node, int d);
+  void dumpIntLiteral(IntLiteral *node, int d);
+  void dumpBinaryExpr(BinaryExpr *node, int d);
+  void dumpUnaryExpr(UnaryExpr *node, int d);
+  void dumpExpr(Expr *node, int d);
+  void dumpVarDeclr(VarDeclr *node, int d);
   uint32_t getLine(uint32_t of);
 
 public:
-  void dump(Node *node);
+  void dump(Forest *module);
   Dumper(const std::vector<uint32_t> &l) : lineOffset(l) {}
   ~Dumper() {}
 };
