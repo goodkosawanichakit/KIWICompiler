@@ -17,6 +17,8 @@ std::string matchEnumKind(XX::AST::Kind k) {
     return "FLOAT_LITERAL";
   case XX::AST::Kind::VAR_DECLR:
     return "VAR_DECLR";
+  case XX::AST::Kind::IDENTIFIER:
+    return "IDENTIFIER";
   }
   return "UNKNOWN_KIND";
 }
@@ -67,6 +69,11 @@ void XX::AST::Dumper::dump(XX::AST::Forest *module) {
   if (!module)
     return;
   for (XX::AST::Node *node : module->vec) {
+    if (!node) {
+      std::cout << "TS ERROR na" << std::endl;
+      continue;
+    }
+
     switch (node->getKind()) {
     case Kind::VAR_DECLR:
       dumpVarDeclr((VarDeclr *)node, 0);
@@ -84,8 +91,8 @@ void XX::AST::Dumper::dumpVarDeclr(VarDeclr *node, int d) {
   if (!node)
     return;
   std::cout << std::string(d * 2, ' ') << matchEnumKind(node->getKind()) << ' '
-            << matchEnumType(node->getType()) << " Name: " << node->getVarName()
-            << std::endl;
+            << matchEnumType(node->getType())
+            << " Name: " << node->getIdentifier()->getName() << std::endl;
   dumpExpr(node->getExpr(), d + 1);
 }
 

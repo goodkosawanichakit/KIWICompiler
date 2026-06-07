@@ -16,11 +16,14 @@ private:
   bool match(TokenType t);
   bool isOP();
   int getBindingPower(TokenType t);
+  bool expectSemi();
+  void panic();
   AST::Type matchType(TokenType t);
   AST::VarDeclr *parseVarDeclr();
   AST::Expr *parseExpr(int b);
   AST::BinaryExpr *parseBinaryExpr();
   AST::UnaryExpr *parseUnaryExpr();
+  AST::Identifier *parseIdent();
   AST::Expr *parseLiteral();
   AST::IntLiteral *parseIntLiteral();
   AST::FloatLiteral *parseFloatLiteral();

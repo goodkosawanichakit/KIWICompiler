@@ -49,9 +49,26 @@ bool XX::Parser::isOP() {
   }
 }
 
+void XX::Parser::panic() {
+  while (!match(TokenType::TOKEN_EOF) && !match(TokenType::SEMICOLON) &&
+         !currentToken.isReservedWord())
+    advance();
+
+  if (match(TokenType::SEMICOLON))
+    advance();
+}
+
+bool XX::Parser::expectSemi() {
+  if (match(TokenType::SEMICOLON))
+    return true;
+  // make error node or maybe just panic
+  panic();
+  return false;
+}
+
 XX::AST::Forest *XX::Parser::parse() {
   AST::Forest *module = new AST::Forest();
-  while (currentToken.type != TokenType::TOKEN_EOF) {
+  while (!match(TokenType::TOKEN_EOF)) {
     switch (currentToken.type) {
     case TokenType::KW_INT8:
     case TokenType::KW_INT16:
@@ -79,10 +96,7 @@ XX::AST::VarDeclr *XX::Parser::parseVarDeclr() {
   uint32_t o = currentToken.offset;
   uint16_t l = currentToken.length;
   advance();
-
-  std::string name = source.substr(currentToken.offset, currentToken.length);
-
-  advance();
+  AST::Identifier *ident = parseIdent();
   if (!match(TokenType::EQUAL))
     // TODO: make node error or something IDK, so I'll leave a return null
     return nullptr;
@@ -90,12 +104,21 @@ XX::AST::VarDeclr *XX::Parser::parseVarDeclr() {
   advance();
 
   XX::AST::Expr *value = parseExpr(0);
-  if (!match(TokenType::SEMICOLON))
-    // TODO: same as above todo
+
+  if (!expectSemi())
+    // TODO: MEMORY LEAK ALERT, I'll leave it for the OS to clean it up for now.
     return nullptr;
 
   advance();
-  return new AST::VarDeclr(o, l, t, name, value);
+  return new AST::VarDeclr(o, l, t, ident, value);
+}
+
+XX::AST::Identifier *XX::Parser::parseIdent() {
+  uint32_t o = currentToken.offset;
+  uint16_t l = currentToken.length;
+  std::string name = source.substr(currentToken.offset, currentToken.length);
+  advance();
+  return new AST::Identifier(o, l, name);
 }
 
 int XX::Parser::getBindingPower(XX::TokenType t) {
