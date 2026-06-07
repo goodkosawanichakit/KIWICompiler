@@ -7,7 +7,7 @@ namespace XX::AST {
 class Dumper {
 private:
   const std::vector<uint32_t> &lineOffset;
-
+  void dumpIdent(Identifier *node, int d);
   void dumpFloatLiteral(FloatLiteral *node, int d);
   void dumpIntLiteral(IntLiteral *node, int d);
   void dumpBinaryExpr(BinaryExpr *node, int d);

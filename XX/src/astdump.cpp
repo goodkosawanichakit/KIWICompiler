@@ -106,9 +106,18 @@ void XX::AST::Dumper::dumpExpr(Expr *node, int d) {
     return dumpBinaryExpr((BinaryExpr *)node, d);
   case Kind::UNARY_EXPR:
     return dumpUnaryExpr((UnaryExpr *)node, d);
+  case Kind::IDENTIFIER:
+    return dumpIdent((Identifier *)node, d);
   default:
     std::cout << "How did you get here." << std::endl;
   }
+}
+
+void XX::AST::Dumper::dumpIdent(Identifier *node, int d) {
+  if (!node)
+    return;
+  std::cout << std::string(d * 2, ' ') << matchEnumKind(node->getKind())
+            << " Name: " << node->getName() << std::endl;
 }
 
 void XX::AST::Dumper::dumpBinaryExpr(BinaryExpr *node, int d) {

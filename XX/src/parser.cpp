@@ -114,11 +114,10 @@ XX::AST::VarDeclr *XX::Parser::parseVarDeclr() {
 }
 
 XX::AST::Identifier *XX::Parser::parseIdent() {
-  uint32_t o = currentToken.offset;
-  uint16_t l = currentToken.length;
-  std::string name = source.substr(currentToken.offset, currentToken.length);
   advance();
-  return new AST::Identifier(o, l, name);
+  return new AST::Identifier(
+      previousToken.offset, previousToken.length,
+      source.substr(previousToken.offset, previousToken.length));
 }
 
 int XX::Parser::getBindingPower(XX::TokenType t) {
@@ -153,6 +152,13 @@ XX::AST::Expr *XX::Parser::parseExpr(int b) {
   return left;
 }
 
+XX::AST::Expr *XX::Parser::parseGroupExpr() {
+  advance();
+  AST::Expr *e = parseExpr(0);
+  advance();
+  return e;
+}
+
 XX::AST::UnaryExpr *XX::Parser::parseUnaryExpr() {
   uint32_t o = currentToken.offset;
   uint16_t l = currentToken.length;
@@ -170,6 +176,10 @@ XX::AST::Expr *XX::Parser::parseLiteral() {
     return parseIntLiteral();
   case TokenType::NUMBER_FLOAT:
     return parseFloatLiteral();
+  case TokenType::IDENTIFIER:
+    return parseIdent();
+  case TokenType::LEFT_PAREN:
+    return parseGroupExpr();
   default:
     // TODO: DMC short for developer may cry. although I'm just a vibe coder
     // JK JK (about I'm a vibe coder tho not DMC)

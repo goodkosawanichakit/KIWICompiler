@@ -21,6 +21,7 @@ private:
   AST::Type matchType(TokenType t);
   AST::VarDeclr *parseVarDeclr();
   AST::Expr *parseExpr(int b);
+  AST::Expr *parseGroupExpr();
   AST::BinaryExpr *parseBinaryExpr();
   AST::UnaryExpr *parseUnaryExpr();
   AST::Identifier *parseIdent();
