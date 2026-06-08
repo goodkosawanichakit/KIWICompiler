@@ -19,7 +19,8 @@ std::string matchEnumKind(XX::AST::Kind k) {
     return "VAR_DECLR";
   case XX::AST::Kind::IDENTIFIER:
     return "IDENTIFIER";
-  case XX::AST::Kind::ERROR:
+  case XX::AST::Kind::ERROR_STMT:
+  case XX::AST::Kind::ERROR_EXPR:
     return "ERROR";
   }
   return "UNKNOWN_KIND";
@@ -83,7 +84,7 @@ void XX::AST::Dumper::dump(XX::AST::Forest *module) {
     default:
       // TODO: IDK what I need to handle in this deafult section.
       // so todo is I need to think what I'm gonna do
-      std::cout << "You shouldn't be here." << std::endl;
+      dumpErrorNode((ErrorStmt *)node, 0);
     }
   }
 }
@@ -110,14 +111,14 @@ void XX::AST::Dumper::dumpExpr(Expr *node, int d) {
     return dumpUnaryExpr((UnaryExpr *)node, d);
   case Kind::IDENTIFIER:
     return dumpIdent((Identifier *)node, d);
-  case Kind::ERROR:
-    return dumpErrorNode((ErrorNode *)node, d);
+  case Kind::ERROR_STMT:
+    return dumpErrorNode((ErrorStmt *)node, d);
   default:
     std::cout << "How did you get here." << std::endl;
   }
 }
 
-void XX::AST::Dumper::dumpErrorNode(ErrorNode *node, int d) {
+void XX::AST::Dumper::dumpErrorNode(ErrorStmt *node, int d) {
   if (!node)
     return;
   std::cout << std::string(d * 2, ' ') << matchEnumKind(node->getKind())

@@ -91,23 +91,34 @@ XX::AST::Forest *XX::Parser::parse() {
 // VarDeclr = type identifiers "="  (Expr | BinaryExpr) ";"
 // BinaryExpr is for later cause I'm suck
 // P.S I think I'm finish the BinaryExpr tho.
-XX::AST::VarDeclr *XX::Parser::parseVarDeclr() {
+XX::AST::Stmt *XX::Parser::parseVarDeclr() {
   AST::Type t = matchType(currentToken.type);
   uint32_t o = currentToken.offset;
   uint16_t l = currentToken.length;
   advance();
   AST::Identifier *ident = parseIdent();
-  if (!match(TokenType::EQUAL))
-    // TODO: make node error or something IDK, so I'll leave a return null
-    return nullptr;
 
+  // TODO: MEMORY LEAK ALERT
+  if (!match(TokenType::EQUAL)) {
+    if (!expectSemi())
+      return new AST::ErrorStmt(
+          o, l,
+          "You forget to add ';' at the end of this -> " +
+              source.substr(o,
+                            previousToken.offset + previousToken.length - o));
+    advance();
+    return new AST::VarDeclr(o, l, t, ident, nullptr);
+  }
   advance();
 
   XX::AST::Expr *value = parseExpr(0);
 
   if (!expectSemi())
     // TODO: MEMORY LEAK ALERT, I'll leave it for the OS to clean it up for now.
-    return nullptr;
+    return new AST::ErrorStmt(
+        o, l,
+        "You forget to add ';' at the end of this -> " +
+            source.substr(o, previousToken.offset + previousToken.length - o));
 
   advance();
   return new AST::VarDeclr(o, l, t, ident, value);

@@ -14,7 +14,8 @@ enum class Kind {
   INT_LITERAL,
   FLOAT_LITERAL,
   VAR_DECLR,
-  ERROR
+  ERROR_STMT,
+  ERROR_EXPR
 };
 
 enum class Type {
@@ -162,14 +163,24 @@ public:
   ~VarDeclr() {}
 };
 
-class ErrorNode : public Node {
+class ErrorStmt : public Stmt {
 private:
   std::string msg;
 
 public:
   inline std::string getMessage() { return msg; }
-  ErrorNode(uint32_t o, uint16_t l, std::string msg)
-      : Node(Kind::ERROR, o, l), msg(msg) {}
+  ErrorStmt(uint32_t o, uint16_t l, std::string msg)
+      : Stmt(Kind::ERROR_STMT, o, l), msg(msg) {}
+};
+
+class ErrorExpr : public Expr {
+private:
+  std::string msg;
+
+public:
+  inline std::string getMessage() { return msg; }
+  ErrorExpr(uint32_t o, uint16_t l, std::string msg)
+      : Expr(Kind::ERROR_EXPR, o, l), msg(msg) {}
 };
 
 } // namespace XX::AST
