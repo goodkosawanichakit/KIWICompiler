@@ -19,6 +19,8 @@ std::string matchEnumKind(XX::AST::Kind k) {
     return "VAR_DECLR";
   case XX::AST::Kind::IDENTIFIER:
     return "IDENTIFIER";
+  case XX::AST::Kind::ERROR:
+    return "ERROR";
   }
   return "UNKNOWN_KIND";
 }
@@ -108,9 +110,18 @@ void XX::AST::Dumper::dumpExpr(Expr *node, int d) {
     return dumpUnaryExpr((UnaryExpr *)node, d);
   case Kind::IDENTIFIER:
     return dumpIdent((Identifier *)node, d);
+  case Kind::ERROR:
+    return dumpErrorNode((ErrorNode *)node, d);
   default:
     std::cout << "How did you get here." << std::endl;
   }
+}
+
+void XX::AST::Dumper::dumpErrorNode(ErrorNode *node, int d) {
+  if (!node)
+    return;
+  std::cout << std::string(d * 2, ' ') << matchEnumKind(node->getKind())
+            << " Error: " << node->getMessage() << std::endl;
 }
 
 void XX::AST::Dumper::dumpIdent(Identifier *node, int d) {

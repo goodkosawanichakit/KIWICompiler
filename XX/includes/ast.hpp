@@ -13,7 +13,8 @@ enum class Kind {
   IDENTIFIER,
   INT_LITERAL,
   FLOAT_LITERAL,
-  VAR_DECLR
+  VAR_DECLR,
+  ERROR
 };
 
 enum class Type {
@@ -159,6 +160,16 @@ public:
       : Stmt(Kind::VAR_DECLR, o, l), type(t), ident(i),
         whatShouldInameIt(init) {}
   ~VarDeclr() {}
+};
+
+class ErrorNode : public Node {
+private:
+  std::string msg;
+
+public:
+  inline std::string getMessage() { return msg; }
+  ErrorNode(uint32_t o, uint16_t l, std::string msg)
+      : Node(Kind::ERROR, o, l), msg(msg) {}
 };
 
 } // namespace XX::AST
