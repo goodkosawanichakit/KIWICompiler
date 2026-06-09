@@ -4,32 +4,32 @@
 #include <cstdint>
 #include <string>
 
-void XX::Parser::advance() {
+void KIWI::Parser::advance() {
   previousToken = currentToken;
   currentToken = scanner.scanToken();
 }
 
-bool XX::Parser::match(XX::TokenType t) {
+bool KIWI::Parser::match(KIWI::TokenType t) {
   return (t == currentToken.type) ? true : false;
 }
 
-XX::AST::Type XX::Parser::matchType(XX::TokenType t) {
+KIWI::AST::Type KIWI::Parser::matchType(KIWI::TokenType t) {
   switch (t) {
-  case XX::TokenType::KW_INT8:
+  case KIWI::TokenType::KW_INT8:
     return AST::Type::INT8;
-  case XX::TokenType::KW_INT16:
+  case KIWI::TokenType::KW_INT16:
     return AST::Type::INT16;
-  case XX::TokenType::KW_INT32:
+  case KIWI::TokenType::KW_INT32:
     return AST::Type::INT32;
-  case XX::TokenType::KW_INT64:
+  case KIWI::TokenType::KW_INT64:
     return AST::Type::INT64;
-  case XX::TokenType::KW_FLOAT8:
+  case KIWI::TokenType::KW_FLOAT8:
     return AST::Type::FLOAT8;
-  case XX::TokenType::KW_FLOAT16:
+  case KIWI::TokenType::KW_FLOAT16:
     return AST::Type::FLOAT16;
-  case XX::TokenType::KW_FLOAT32:
+  case KIWI::TokenType::KW_FLOAT32:
     return AST::Type::FLOAT32;
-  case XX::TokenType::KW_FLOAT64:
+  case KIWI::TokenType::KW_FLOAT64:
     return AST::Type::FLOAT64;
   default:
     // TODO: It's unreachable what do I do (in todo yes)
@@ -37,7 +37,7 @@ XX::AST::Type XX::Parser::matchType(XX::TokenType t) {
   }
 }
 
-bool XX::Parser::isOP() {
+bool KIWI::Parser::isOP() {
   switch (currentToken.type) {
   case TokenType::PLUS:
   case TokenType::MINUS:
@@ -49,7 +49,7 @@ bool XX::Parser::isOP() {
   }
 }
 
-void XX::Parser::panic() {
+void KIWI::Parser::panic() {
   while (!match(TokenType::TOKEN_EOF) && !match(TokenType::SEMICOLON) &&
          !currentToken.isReservedWord())
     advance();
@@ -58,7 +58,7 @@ void XX::Parser::panic() {
     advance();
 }
 
-bool XX::Parser::expectSemi() {
+bool KIWI::Parser::expectSemi() {
   if (match(TokenType::SEMICOLON))
     return true;
   // make error node or maybe just panic
@@ -66,7 +66,7 @@ bool XX::Parser::expectSemi() {
   return false;
 }
 
-XX::AST::Forest *XX::Parser::parse() {
+KIWI::AST::Forest *KIWI::Parser::parse() {
   AST::Forest *module = new AST::Forest();
   while (!match(TokenType::TOKEN_EOF)) {
     switch (currentToken.type) {
@@ -91,7 +91,7 @@ XX::AST::Forest *XX::Parser::parse() {
 // VarDeclr = type identifiers "="  (Expr | BinaryExpr) ";"
 // BinaryExpr is for later cause I'm suck
 // P.S I think I'm finish the BinaryExpr tho.
-XX::AST::Stmt *XX::Parser::parseVarDeclr() {
+KIWI::AST::Stmt *KIWI::Parser::parseVarDeclr() {
   AST::Type t = matchType(currentToken.type);
   uint32_t o = currentToken.offset;
   uint16_t l = currentToken.length;
@@ -111,7 +111,11 @@ XX::AST::Stmt *XX::Parser::parseVarDeclr() {
   }
   advance();
 
-  XX::AST::Expr *value = parseExpr(0);
+  KIWI::AST::Expr *value = parseExpr(0);
+
+  if (value->getKind() == AST::Kind::ERROR_EXPR)
+
+    return new AST::VarDeclr(o, l, t, ident, value);
 
   if (!expectSemi())
     // TODO: MEMORY LEAK ALERT, I'll leave it for the OS to clean it up for now.
@@ -124,14 +128,14 @@ XX::AST::Stmt *XX::Parser::parseVarDeclr() {
   return new AST::VarDeclr(o, l, t, ident, value);
 }
 
-XX::AST::Identifier *XX::Parser::parseIdent() {
+KIWI::AST::Identifier *KIWI::Parser::parseIdent() {
   advance();
   return new AST::Identifier(
       previousToken.offset, previousToken.length,
       source.substr(previousToken.offset, previousToken.length));
 }
 
-int XX::Parser::getBindingPower(XX::TokenType t) {
+int KIWI::Parser::getBindingPower(KIWI::TokenType t) {
   switch (t) {
   case TokenType::PLUS:
   case TokenType::MINUS:
@@ -149,7 +153,7 @@ int XX::Parser::getBindingPower(XX::TokenType t) {
 // BinaryExpr = Expr "OP" Expr
 // Expr = IntLiteral | FloatLiteral | BinaryExpr | ...
 // b is for binding power in case I forget it.
-XX::AST::Expr *XX::Parser::parseExpr(int b) {
+KIWI::AST::Expr *KIWI::Parser::parseExpr(int b) {
   AST::Expr *left = parseLiteral();
   while (b < getBindingPower(currentToken.type)) {
     uint32_t o = currentToken.offset;
@@ -163,14 +167,14 @@ XX::AST::Expr *XX::Parser::parseExpr(int b) {
   return left;
 }
 
-XX::AST::Expr *XX::Parser::parseGroupExpr() {
+KIWI::AST::Expr *KIWI::Parser::parseGroupExpr() {
   advance();
   AST::Expr *e = parseExpr(0);
   advance();
   return e;
 }
 
-XX::AST::UnaryExpr *XX::Parser::parseUnaryExpr() {
+KIWI::AST::UnaryExpr *KIWI::Parser::parseUnaryExpr() {
   uint32_t o = currentToken.offset;
   uint16_t l = currentToken.length;
   std::string op = source.substr(currentToken.offset, currentToken.length);
@@ -179,7 +183,7 @@ XX::AST::UnaryExpr *XX::Parser::parseUnaryExpr() {
   return new AST::UnaryExpr(o, l, op, expr);
 }
 
-XX::AST::Expr *XX::Parser::parseLiteral() {
+KIWI::AST::Expr *KIWI::Parser::parseLiteral() {
   switch (currentToken.type) {
   case TokenType::MINUS:
     return parseUnaryExpr();
@@ -192,20 +196,23 @@ XX::AST::Expr *XX::Parser::parseLiteral() {
   case TokenType::LEFT_PAREN:
     return parseGroupExpr();
   default:
-    // TODO: DMC short for developer may cry. although I'm just a vibe coder
-    // JK JK (about I'm a vibe coder tho not DMC)
-    return nullptr;
+    panic();
+    return new AST::ErrorExpr(
+        previousToken.offset, previousToken.length,
+        "Expected Expression at -> " +
+            source.substr(previousToken.offset,
+                          currentToken.offset + currentToken.length));
   }
 }
 
-XX::AST::IntLiteral *XX::Parser::parseIntLiteral() {
+KIWI::AST::IntLiteral *KIWI::Parser::parseIntLiteral() {
   advance();
   return new AST::IntLiteral(
       previousToken.offset, previousToken.length,
       std::stoll(source.substr(previousToken.offset, previousToken.length)));
 }
 
-XX::AST::FloatLiteral *XX::Parser::parseFloatLiteral() {
+KIWI::AST::FloatLiteral *KIWI::Parser::parseFloatLiteral() {
   advance();
   return new AST::FloatLiteral(
       previousToken.offset, previousToken.length,

@@ -3,7 +3,7 @@
 #include "ast.hpp"
 #include "scanner.hpp"
 
-namespace XX {
+namespace KIWI {
 class Parser {
 private:
   Scanner &scanner;
@@ -34,4 +34,4 @@ public:
   Parser(Scanner &s, std::string &sc) : scanner(s), source(sc) { advance(); }
   ~Parser() {}
 };
-} // namespace XX
+} // namespace KIWI

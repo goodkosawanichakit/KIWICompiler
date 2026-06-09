@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 
-namespace XX::AST {
+namespace KIWI::AST {
 
 enum class Kind {
   EXPR,
@@ -183,4 +183,4 @@ public:
       : Expr(Kind::ERROR_EXPR, o, l), msg(msg) {}
 };
 
-} // namespace XX::AST
+} // namespace KIWI::AST

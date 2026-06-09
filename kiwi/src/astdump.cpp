@@ -3,52 +3,52 @@
 #include <iostream>
 
 // TBH these two match function is llm generated cause I'm lazy.
-std::string matchEnumKind(XX::AST::Kind k) {
+std::string matchEnumKind(KIWI::AST::Kind k) {
   switch (k) {
-  case XX::AST::Kind::EXPR:
+  case KIWI::AST::Kind::EXPR:
     return "EXPR";
-  case XX::AST::Kind::BINARY_EXPR:
+  case KIWI::AST::Kind::BINARY_EXPR:
     return "BINARY_EXPR";
-  case XX::AST::Kind::UNARY_EXPR:
+  case KIWI::AST::Kind::UNARY_EXPR:
     return "UNARY_EXPR";
-  case XX::AST::Kind::INT_LITERAL:
+  case KIWI::AST::Kind::INT_LITERAL:
     return "INT_LITERAL";
-  case XX::AST::Kind::FLOAT_LITERAL:
+  case KIWI::AST::Kind::FLOAT_LITERAL:
     return "FLOAT_LITERAL";
-  case XX::AST::Kind::VAR_DECLR:
+  case KIWI::AST::Kind::VAR_DECLR:
     return "VAR_DECLR";
-  case XX::AST::Kind::IDENTIFIER:
+  case KIWI::AST::Kind::IDENTIFIER:
     return "IDENTIFIER";
-  case XX::AST::Kind::ERROR_STMT:
-  case XX::AST::Kind::ERROR_EXPR:
+  case KIWI::AST::Kind::ERROR_STMT:
+  case KIWI::AST::Kind::ERROR_EXPR:
     return "ERROR";
   }
   return "UNKNOWN_KIND";
 }
 
-std::string matchEnumType(XX::AST::Type t) {
+std::string matchEnumType(KIWI::AST::Type t) {
   switch (t) {
-  case XX::AST::Type::INT8:
+  case KIWI::AST::Type::INT8:
     return "INT8";
-  case XX::AST::Type::INT16:
+  case KIWI::AST::Type::INT16:
     return "INT16";
-  case XX::AST::Type::INT32:
+  case KIWI::AST::Type::INT32:
     return "INT32";
-  case XX::AST::Type::INT64:
+  case KIWI::AST::Type::INT64:
     return "INT64";
-  case XX::AST::Type::FLOAT8:
+  case KIWI::AST::Type::FLOAT8:
     return "FLOAT8";
-  case XX::AST::Type::FLOAT16:
+  case KIWI::AST::Type::FLOAT16:
     return "FLOAT16";
-  case XX::AST::Type::FLOAT32:
+  case KIWI::AST::Type::FLOAT32:
     return "FLOAT32";
-  case XX::AST::Type::FLOAT64:
+  case KIWI::AST::Type::FLOAT64:
     return "FLOAT64";
   }
   return "UNKNOWN_TYPE";
 }
 
-uint32_t XX::AST::Dumper::getLine(uint32_t of) {
+uint32_t KIWI::AST::Dumper::getLine(uint32_t of) {
   if (lineOffset.empty())
     return 1;
   int l = 0;
@@ -68,10 +68,10 @@ uint32_t XX::AST::Dumper::getLine(uint32_t of) {
   return target;
 }
 
-void XX::AST::Dumper::dump(XX::AST::Forest *module) {
+void KIWI::AST::Dumper::dump(KIWI::AST::Forest *module) {
   if (!module)
     return;
-  for (XX::AST::Node *node : module->vec) {
+  for (KIWI::AST::Node *node : module->vec) {
     if (!node) {
       std::cout << "TS ERROR na" << std::endl;
       continue;
@@ -84,13 +84,13 @@ void XX::AST::Dumper::dump(XX::AST::Forest *module) {
     default:
       // TODO: IDK what I need to handle in this deafult section.
       // so todo is I need to think what I'm gonna do
-      dumpErrorNode((ErrorStmt *)node, 0);
+      dumpErrorStmt((ErrorStmt *)node, 0);
     }
   }
 }
 
 // Prob work fine I think
-void XX::AST::Dumper::dumpVarDeclr(VarDeclr *node, int d) {
+void KIWI::AST::Dumper::dumpVarDeclr(VarDeclr *node, int d) {
   if (!node)
     return;
   std::cout << std::string(d * 2, ' ') << matchEnumKind(node->getKind()) << ' '
@@ -99,7 +99,7 @@ void XX::AST::Dumper::dumpVarDeclr(VarDeclr *node, int d) {
   dumpExpr(node->getExpr(), d + 1);
 }
 
-void XX::AST::Dumper::dumpExpr(Expr *node, int d) {
+void KIWI::AST::Dumper::dumpExpr(Expr *node, int d) {
   if (!node)
     return;
   switch (node->getKind()) {
@@ -112,27 +112,36 @@ void XX::AST::Dumper::dumpExpr(Expr *node, int d) {
   case Kind::IDENTIFIER:
     return dumpIdent((Identifier *)node, d);
   case Kind::ERROR_STMT:
-    return dumpErrorNode((ErrorStmt *)node, d);
+    return dumpErrorStmt((ErrorStmt *)node, d);
+  case Kind::ERROR_EXPR:
+    return dumpErrorExpr((ErrorExpr *)node, d);
   default:
     std::cout << "How did you get here." << std::endl;
   }
 }
 
-void XX::AST::Dumper::dumpErrorNode(ErrorStmt *node, int d) {
+void KIWI::AST::Dumper::dumpErrorStmt(ErrorStmt *node, int d) {
   if (!node)
     return;
   std::cout << std::string(d * 2, ' ') << matchEnumKind(node->getKind())
             << " Error: " << node->getMessage() << std::endl;
 }
 
-void XX::AST::Dumper::dumpIdent(Identifier *node, int d) {
+void KIWI::AST::Dumper::dumpErrorExpr(ErrorExpr *node, int d) {
+  if (!node)
+    return;
+  std::cout << std::string(d * 2, ' ') << matchEnumKind(node->getKind())
+            << " Error: " << node->getMessage() << std::endl;
+}
+
+void KIWI::AST::Dumper::dumpIdent(Identifier *node, int d) {
   if (!node)
     return;
   std::cout << std::string(d * 2, ' ') << matchEnumKind(node->getKind())
             << " Name: " << node->getName() << std::endl;
 }
 
-void XX::AST::Dumper::dumpBinaryExpr(BinaryExpr *node, int d) {
+void KIWI::AST::Dumper::dumpBinaryExpr(BinaryExpr *node, int d) {
   if (!node)
     return;
   std::cout << std::string(d * 2, ' ') << matchEnumKind(node->getKind())
@@ -141,7 +150,7 @@ void XX::AST::Dumper::dumpBinaryExpr(BinaryExpr *node, int d) {
   dumpExpr(node->getRExpr(), d + 1);
 }
 
-void XX::AST::Dumper::dumpUnaryExpr(UnaryExpr *node, int d) {
+void KIWI::AST::Dumper::dumpUnaryExpr(UnaryExpr *node, int d) {
   if (!node)
     return;
 
@@ -151,7 +160,7 @@ void XX::AST::Dumper::dumpUnaryExpr(UnaryExpr *node, int d) {
   dumpExpr(node->getExpr(), d + 1);
 }
 
-void XX::AST::Dumper::dumpIntLiteral(IntLiteral *node, int d) {
+void KIWI::AST::Dumper::dumpIntLiteral(IntLiteral *node, int d) {
   if (!node)
     return;
   std::cout << std::string(d * 2, ' ') << matchEnumKind(node->getKind())

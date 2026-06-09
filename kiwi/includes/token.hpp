@@ -1,7 +1,7 @@
 #pragma once
 #include <cstdint>
 
-namespace XX {
+namespace KIWI {
 enum class TokenType {
   // Single-character tokens
   PLUS,
@@ -79,4 +79,4 @@ struct Token {
   }
 };
 
-}; // namespace XX
+}; // namespace KIWI

@@ -6,7 +6,7 @@
 #include <unordered_map>
 #include <vector>
 
-namespace XX {
+namespace KIWI {
 class Scanner {
 private:
   const std::string &source;
@@ -34,4 +34,4 @@ public:
   Scanner(const std::string &source);
 };
 
-} // namespace XX
+} // namespace KIWI
