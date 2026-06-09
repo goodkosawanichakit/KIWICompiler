@@ -2,24 +2,26 @@
 #include <cstdint>
 #include <sys/types.h>
 
-std::unordered_map<std::string, XX::TokenType> XX::Scanner::reserve_words = {
-    {"int8", TokenType::KW_INT8},       {"int16", TokenType::KW_INT16},
-    {"int32", TokenType::KW_INT32},     {"int64", TokenType::KW_INT64},
-    {"float8", TokenType::KW_FLOAT8},   {"float16", TokenType::KW_FLOAT16},
-    {"float32", TokenType::KW_FLOAT32}, {"float64", TokenType::KW_FLOAT64},
-    {"char", TokenType::KW_CHAR},       {"string", TokenType::KW_STRING},
-    {"bool", TokenType::KW_BOOL},       {"if", TokenType::KW_IF},
-    {"else", TokenType::KW_ELSE},       {"loop", TokenType::KW_LOOP},
-    {"fn", TokenType::KW_FN},           {"return", TokenType::KW_RETURN},
-    {"true", TokenType::KW_TRUE},       {"false", TokenType::KW_FALSE}};
+std::unordered_map<std::string, KIWI::TokenType> KIWI::Scanner::reserve_words =
+    {{"int8", TokenType::KW_INT8},       {"int16", TokenType::KW_INT16},
+     {"int32", TokenType::KW_INT32},     {"int64", TokenType::KW_INT64},
+     {"float8", TokenType::KW_FLOAT8},   {"float16", TokenType::KW_FLOAT16},
+     {"float32", TokenType::KW_FLOAT32}, {"float64", TokenType::KW_FLOAT64},
+     {"char", TokenType::KW_CHAR},       {"string", TokenType::KW_STRING},
+     {"bool", TokenType::KW_BOOL},       {"if", TokenType::KW_IF},
+     {"else", TokenType::KW_ELSE},       {"loop", TokenType::KW_LOOP},
+     {"fn", TokenType::KW_FN},           {"return", TokenType::KW_RETURN},
+     {"true", TokenType::KW_TRUE},       {"false", TokenType::KW_FALSE}};
 
-XX::Scanner::Scanner(const std::string &source) : source(source) {}
+KIWI::Scanner::Scanner(const std::string &source) : source(source) {}
 
-const std::vector<uint32_t> &XX::Scanner::getLineOffset() { return lineOffset; }
+const std::vector<uint32_t> &KIWI::Scanner::getLineOffset() {
+  return lineOffset;
+}
 
-bool XX::Scanner::isAtEnd() { return current >= source.length(); }
+bool KIWI::Scanner::isAtEnd() { return current >= source.length(); }
 
-bool XX::Scanner::match(char c) {
+bool KIWI::Scanner::match(char c) {
   if (isAtEnd())
     return false;
   if (source[current] != c)
@@ -28,21 +30,21 @@ bool XX::Scanner::match(char c) {
   return true;
 }
 
-char XX::Scanner::advance() { return source[current++]; }
+char KIWI::Scanner::advance() { return source[current++]; }
 
-char XX::Scanner::peek() {
+char KIWI::Scanner::peek() {
   if (isAtEnd())
     return '\0';
   return source[current];
 }
 
-char XX::Scanner::peekNext() {
+char KIWI::Scanner::peekNext() {
   if (current + 1 >= source.length())
     return '\0';
   return source[current + 1];
 }
 
-void XX::Scanner::skipWhitespace() {
+void KIWI::Scanner::skipWhitespace() {
   while (!isAtEnd())
     switch (peek()) {
     case ' ':
@@ -60,12 +62,12 @@ void XX::Scanner::skipWhitespace() {
     }
 }
 
-void XX::Scanner::comment() {
+void KIWI::Scanner::comment() {
   while (peek() != '\n' && !isAtEnd())
     advance();
 }
 
-bool XX::Scanner::multiLineComment() {
+bool KIWI::Scanner::multiLineComment() {
   int count = 1;
   while (!isAtEnd()) {
     char c = advance();
@@ -89,7 +91,7 @@ bool XX::Scanner::multiLineComment() {
   return false;
 }
 
-XX::Token XX::Scanner::string() {
+KIWI::Token KIWI::Scanner::string() {
   while (peek() != '"' && !isAtEnd())
     advance();
 
@@ -101,7 +103,7 @@ XX::Token XX::Scanner::string() {
   return Token{TokenType::STRING, (uint32_t)start, (uint16_t)(current - start)};
 }
 
-XX::Token XX::Scanner::digit() {
+KIWI::Token KIWI::Scanner::digit() {
   bool is_float = false;
 
   while (isdigit(peek()) && !isAtEnd())
@@ -122,7 +124,7 @@ XX::Token XX::Scanner::digit() {
                             (uint16_t)(current - start)};
 }
 
-XX::Token XX::Scanner::identifier() {
+KIWI::Token KIWI::Scanner::identifier() {
   while (std::isalnum(peek()) || peek() == '_')
     advance();
 
@@ -137,7 +139,7 @@ XX::Token XX::Scanner::identifier() {
   }
 }
 
-XX::Token XX::Scanner::scanToken() {
+KIWI::Token KIWI::Scanner::scanToken() {
   skipWhitespace();
 
   start = current;

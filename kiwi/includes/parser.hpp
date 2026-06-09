@@ -3,7 +3,7 @@
 #include "ast.hpp"
 #include "scanner.hpp"
 
-namespace XX {
+namespace KIWI {
 class Parser {
 private:
   Scanner &scanner;
@@ -16,11 +16,15 @@ private:
   bool match(TokenType t);
   bool isOP();
   int getBindingPower(TokenType t);
+  bool expectSemi();
+  void panic();
   AST::Type matchType(TokenType t);
-  AST::VarDeclr *parseVarDeclr();
+  AST::Stmt *parseVarDeclr();
   AST::Expr *parseExpr(int b);
+  AST::Expr *parseGroupExpr();
   AST::BinaryExpr *parseBinaryExpr();
   AST::UnaryExpr *parseUnaryExpr();
+  AST::Identifier *parseIdent();
   AST::Expr *parseLiteral();
   AST::IntLiteral *parseIntLiteral();
   AST::FloatLiteral *parseFloatLiteral();
@@ -30,4 +34,4 @@ public:
   Parser(Scanner &s, std::string &sc) : scanner(s), source(sc) { advance(); }
   ~Parser() {}
 };
-} // namespace XX
+} // namespace KIWI

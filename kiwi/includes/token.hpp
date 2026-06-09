@@ -1,12 +1,7 @@
 #pragma once
-
 #include <cstdint>
-#include <string>
-#include <unordered_map>
-#include <vector>
 
-namespace XX {
-
+namespace KIWI {
 enum class TokenType {
   // Single-character tokens
   PLUS,
@@ -74,42 +69,14 @@ enum class TokenType {
   TOKEN_EOF
 };
 
-enum class Error {
-
-};
-
 struct Token {
   TokenType type;
   uint32_t offset;
   uint16_t length;
+
+  bool isReservedWord() const {
+    return type > TokenType::KW_INT8 && type < TokenType::KW_FALSE;
+  }
 };
 
-class Scanner {
-private:
-  const std::string &source;
-  size_t start = 0;
-  size_t current = 0;
-  size_t line = 1;
-  std::vector<uint32_t> lineOffset;
-  std::vector<Error> error_;
-  static std::unordered_map<std::string, TokenType> reserve_words;
-
-  bool isAtEnd();
-  bool match(char c);
-  char advance();
-  char peek();
-  char peekNext();
-  void skipWhitespace();
-  void comment();
-  bool multiLineComment();
-  Token digit();
-  Token string();
-  Token identifier();
-
-public:
-  Token scanToken();
-  const std::vector<uint32_t> &getLineOffset();
-  Scanner(const std::string &source);
-};
-
-} // namespace XX
+}; // namespace KIWI

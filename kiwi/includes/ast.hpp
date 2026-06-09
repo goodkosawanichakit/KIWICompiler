@@ -4,15 +4,18 @@
 #include <string>
 #include <vector>
 
-namespace XX::AST {
+namespace KIWI::AST {
 
 enum class Kind {
   EXPR,
   BINARY_EXPR,
   UNARY_EXPR,
+  IDENTIFIER,
   INT_LITERAL,
   FLOAT_LITERAL,
-  VAR_DECLR
+  VAR_DECLR,
+  ERROR_STMT,
+  ERROR_EXPR
 };
 
 enum class Type {
@@ -100,6 +103,18 @@ public:
       : Expr(Kind::UNARY_EXPR, o, l), op(op), expr(expr) {}
 };
 
+class Identifier : public Expr {
+private:
+  std::string name;
+
+public:
+  inline std::string getName() { return name; }
+
+  Identifier(uint32_t o, uint16_t l, std::string n)
+      : Expr(Kind::IDENTIFIER, o, l), name(n) {}
+  ~Identifier() {}
+};
+
 // why do I store in int64_t bruh.
 // cause it's the maximum that we can use?
 // answer to question above: prob yes so we can store any int literal
@@ -133,19 +148,39 @@ public:
 class VarDeclr : public Stmt {
 private:
   Type type;
-  std::string varName;
+  Identifier *ident;
   Expr
       *whatShouldInameIt; // What should I name this variable???? English 2 / 10
 
 public:
   inline Type getType() { return type; }
-  inline std::string getVarName() { return varName; }
+  inline Identifier *getIdentifier() { return ident; }
   inline Expr *getExpr() { return whatShouldInameIt; }
 
-  VarDeclr(uint32_t o, uint16_t l, Type t, std::string n, Expr *init)
-      : Stmt(Kind::VAR_DECLR, o, l), type(t), varName(n),
+  VarDeclr(uint32_t o, uint16_t l, Type t, Identifier *i, Expr *init)
+      : Stmt(Kind::VAR_DECLR, o, l), type(t), ident(i),
         whatShouldInameIt(init) {}
   ~VarDeclr() {}
 };
 
-} // namespace XX::AST
+class ErrorStmt : public Stmt {
+private:
+  std::string msg;
+
+public:
+  inline std::string getMessage() { return msg; }
+  ErrorStmt(uint32_t o, uint16_t l, std::string msg)
+      : Stmt(Kind::ERROR_STMT, o, l), msg(msg) {}
+};
+
+class ErrorExpr : public Expr {
+private:
+  std::string msg;
+
+public:
+  inline std::string getMessage() { return msg; }
+  ErrorExpr(uint32_t o, uint16_t l, std::string msg)
+      : Expr(Kind::ERROR_EXPR, o, l), msg(msg) {}
+};
+
+} // namespace KIWI::AST

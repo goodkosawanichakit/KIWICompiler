@@ -20,12 +20,12 @@ int main(int argc, char *argv[]) {
   buffer << file.rdbuf();
   source = buffer.str();
 
-  XX::Scanner scanner(source);
-  XX::Parser parser(scanner, source);
+  KIWI::Scanner scanner(source);
+  KIWI::Parser parser(scanner, source);
 
-  XX::AST::Forest *module = parser.parse();
+  KIWI::AST::Forest *module = parser.parse();
 
-  XX::AST::Dumper dumper(scanner.getLineOffset());
+  KIWI::AST::Dumper dumper(scanner.getLineOffset());
   dumper.dump(module);
   std::cout << std::endl;
 

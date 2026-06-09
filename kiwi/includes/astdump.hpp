@@ -3,11 +3,13 @@
 #include "ast.hpp"
 #include <vector>
 
-namespace XX::AST {
+namespace KIWI::AST {
 class Dumper {
 private:
   const std::vector<uint32_t> &lineOffset;
-
+  void dumpErrorStmt(ErrorStmt *node, int d);
+  void dumpErrorExpr(ErrorExpr *node, int d);
+  void dumpIdent(Identifier *node, int d);
   void dumpFloatLiteral(FloatLiteral *node, int d);
   void dumpIntLiteral(IntLiteral *node, int d);
   void dumpBinaryExpr(BinaryExpr *node, int d);
@@ -21,4 +23,4 @@ public:
   Dumper(const std::vector<uint32_t> &l) : lineOffset(l) {}
   ~Dumper() {}
 };
-}; // namespace XX::AST
+}; // namespace KIWI::AST

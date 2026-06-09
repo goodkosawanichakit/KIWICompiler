@@ -1,0 +1,168 @@
+#include "astdump.hpp"
+#include "ast.hpp"
+#include <iostream>
+
+// TBH these two match function is llm generated cause I'm lazy.
+std::string matchEnumKind(KIWI::AST::Kind k) {
+  switch (k) {
+  case KIWI::AST::Kind::EXPR:
+    return "EXPR";
+  case KIWI::AST::Kind::BINARY_EXPR:
+    return "BINARY_EXPR";
+  case KIWI::AST::Kind::UNARY_EXPR:
+    return "UNARY_EXPR";
+  case KIWI::AST::Kind::INT_LITERAL:
+    return "INT_LITERAL";
+  case KIWI::AST::Kind::FLOAT_LITERAL:
+    return "FLOAT_LITERAL";
+  case KIWI::AST::Kind::VAR_DECLR:
+    return "VAR_DECLR";
+  case KIWI::AST::Kind::IDENTIFIER:
+    return "IDENTIFIER";
+  case KIWI::AST::Kind::ERROR_STMT:
+  case KIWI::AST::Kind::ERROR_EXPR:
+    return "ERROR";
+  }
+  return "UNKNOWN_KIND";
+}
+
+std::string matchEnumType(KIWI::AST::Type t) {
+  switch (t) {
+  case KIWI::AST::Type::INT8:
+    return "INT8";
+  case KIWI::AST::Type::INT16:
+    return "INT16";
+  case KIWI::AST::Type::INT32:
+    return "INT32";
+  case KIWI::AST::Type::INT64:
+    return "INT64";
+  case KIWI::AST::Type::FLOAT8:
+    return "FLOAT8";
+  case KIWI::AST::Type::FLOAT16:
+    return "FLOAT16";
+  case KIWI::AST::Type::FLOAT32:
+    return "FLOAT32";
+  case KIWI::AST::Type::FLOAT64:
+    return "FLOAT64";
+  }
+  return "UNKNOWN_TYPE";
+}
+
+uint32_t KIWI::AST::Dumper::getLine(uint32_t of) {
+  if (lineOffset.empty())
+    return 1;
+  int l = 0;
+  int r = lineOffset.size() - 1;
+  uint32_t target = lineOffset.size();
+  while (l <= r) {
+    int m = l + (r - l) / 2;
+
+    if (lineOffset[m] > of) {
+      target = m;
+      r = m - 1;
+    } else {
+      l = m + 1;
+    }
+  }
+
+  return target;
+}
+
+void KIWI::AST::Dumper::dump(KIWI::AST::Forest *module) {
+  if (!module)
+    return;
+  for (KIWI::AST::Node *node : module->vec) {
+    if (!node) {
+      std::cout << "TS ERROR na" << std::endl;
+      continue;
+    }
+
+    switch (node->getKind()) {
+    case Kind::VAR_DECLR:
+      dumpVarDeclr((VarDeclr *)node, 0);
+      break;
+    default:
+      // TODO: IDK what I need to handle in this deafult section.
+      // so todo is I need to think what I'm gonna do
+      dumpErrorStmt((ErrorStmt *)node, 0);
+    }
+  }
+}
+
+// Prob work fine I think
+void KIWI::AST::Dumper::dumpVarDeclr(VarDeclr *node, int d) {
+  if (!node)
+    return;
+  std::cout << std::string(d * 2, ' ') << matchEnumKind(node->getKind()) << ' '
+            << matchEnumType(node->getType())
+            << " Name: " << node->getIdentifier()->getName() << std::endl;
+  dumpExpr(node->getExpr(), d + 1);
+}
+
+void KIWI::AST::Dumper::dumpExpr(Expr *node, int d) {
+  if (!node)
+    return;
+  switch (node->getKind()) {
+  case Kind::INT_LITERAL:
+    return dumpIntLiteral((IntLiteral *)node, d);
+  case Kind::BINARY_EXPR:
+    return dumpBinaryExpr((BinaryExpr *)node, d);
+  case Kind::UNARY_EXPR:
+    return dumpUnaryExpr((UnaryExpr *)node, d);
+  case Kind::IDENTIFIER:
+    return dumpIdent((Identifier *)node, d);
+  case Kind::ERROR_STMT:
+    return dumpErrorStmt((ErrorStmt *)node, d);
+  case Kind::ERROR_EXPR:
+    return dumpErrorExpr((ErrorExpr *)node, d);
+  default:
+    std::cout << "How did you get here." << std::endl;
+  }
+}
+
+void KIWI::AST::Dumper::dumpErrorStmt(ErrorStmt *node, int d) {
+  if (!node)
+    return;
+  std::cout << std::string(d * 2, ' ') << matchEnumKind(node->getKind())
+            << " Error: " << node->getMessage() << std::endl;
+}
+
+void KIWI::AST::Dumper::dumpErrorExpr(ErrorExpr *node, int d) {
+  if (!node)
+    return;
+  std::cout << std::string(d * 2, ' ') << matchEnumKind(node->getKind())
+            << " Error: " << node->getMessage() << std::endl;
+}
+
+void KIWI::AST::Dumper::dumpIdent(Identifier *node, int d) {
+  if (!node)
+    return;
+  std::cout << std::string(d * 2, ' ') << matchEnumKind(node->getKind())
+            << " Name: " << node->getName() << std::endl;
+}
+
+void KIWI::AST::Dumper::dumpBinaryExpr(BinaryExpr *node, int d) {
+  if (!node)
+    return;
+  std::cout << std::string(d * 2, ' ') << matchEnumKind(node->getKind())
+            << " Operator: " << node->getOP() << std::endl;
+  dumpExpr(node->getLExpr(), d + 1);
+  dumpExpr(node->getRExpr(), d + 1);
+}
+
+void KIWI::AST::Dumper::dumpUnaryExpr(UnaryExpr *node, int d) {
+  if (!node)
+    return;
+
+  std::cout << std::string(d * 2, ' ') << matchEnumKind(node->getKind())
+            << " Operator: " << node->getOP() << std::endl;
+
+  dumpExpr(node->getExpr(), d + 1);
+}
+
+void KIWI::AST::Dumper::dumpIntLiteral(IntLiteral *node, int d) {
+  if (!node)
+    return;
+  std::cout << std::string(d * 2, ' ') << matchEnumKind(node->getKind())
+            << " Value: " << node->getValue() << std::endl;
+}
