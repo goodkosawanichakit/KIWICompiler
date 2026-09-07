@@ -54,8 +54,8 @@ void KIWI::Scanner::skipWhitespace() {
       break;
     case '\n':
       // line++;
-      lineOffset.push_back(current);
       advance();
+      lineOffset.push_back(current);
       break;
     default:
       return;

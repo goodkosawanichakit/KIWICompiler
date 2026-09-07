@@ -32,7 +32,7 @@ private:
   std::unique_ptr<AST::Expr> parseGroupExpr();
   std::unique_ptr<AST::Expr> parseUnaryExpr();
   std::unique_ptr<AST::Identifier> parseIdent();
-  std::unique_ptr<AST::Expr> parseLiteral();
+  std::unique_ptr<AST::Expr> parsePrimary();
   std::unique_ptr<AST::IntLiteral> parseIntLiteral();
   std::unique_ptr<AST::FloatLiteral> parseFloatLiteral();
 

@@ -279,7 +279,7 @@ int KIWI::Parser::getBindingPower(KIWI::TokenType t) {
 // Expr = IntLiteral | FloatLiteral | BinaryExpr | ...
 // b is for binding power in case I forget it.
 std::unique_ptr<KIWI::AST::Expr> KIWI::Parser::parseExpr(int b) {
-  std::unique_ptr<AST::Expr> left = parseLiteral();
+  std::unique_ptr<AST::Expr> left = parsePrimary();
   while (b < getBindingPower(currentToken.type)) {
     uint32_t o = currentToken.offset;
     uint16_t l = currentToken.length;
@@ -325,7 +325,7 @@ std::unique_ptr<KIWI::AST::Expr> KIWI::Parser::parseUnaryExpr() {
   return std::make_unique<AST::UnaryExpr>(o, l, op, std::move(expr));
 }
 
-std::unique_ptr<KIWI::AST::Expr> KIWI::Parser::parseLiteral() {
+std::unique_ptr<KIWI::AST::Expr> KIWI::Parser::parsePrimary() {
   switch (currentToken.type) {
   case TokenType::MINUS:
     return parseUnaryExpr();
