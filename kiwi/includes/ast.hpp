@@ -8,8 +8,6 @@ namespace KIWI::AST {
 
 enum class Kind {
   EXPR,
-  // STMT,
-  // DECLR,
   BLOCK,
   BINARY_EXPR,
   UNARY_EXPR,
@@ -87,9 +85,6 @@ public:
 };
 
 // yet again the name already told it propose.
-// anyway is op as a char is really a good choice?
-// answer to question above: op as a char is ass cause I can't directly use
-// substr so yeah no more char
 // man I'll never leave the project for 1 month ever again, I surely forgot
 // everything
 class BinaryExpr : public Expr {
@@ -132,10 +127,6 @@ public:
       : Expr(Kind::IDENTIFIER, o, l), name(n) {}
 };
 
-// why do I store in int64_t bruh.
-// cause it's the maximum that we can use?
-// answer to question above: prob yes so we can store any int literal
-// anyways to remind future me this is the terminal of BNF ,FloatLiteral too
 class IntLiteral : public Expr {
 private:
   int64_t value;
@@ -191,6 +182,7 @@ private:
 public:
   inline Type getType() { return type; }
   inline Identifier *getIdentifier() { return ident.get(); }
+  inline std::string getName() { return ident->getName(); }
   inline Expr *getExpr() { return initExpr.get(); }
 
   VarDeclr(uint32_t o, uint16_t l, Type t, std::unique_ptr<Identifier> i,
@@ -207,27 +199,29 @@ private:
 public:
   inline Type getType() { return type; }
   inline Identifier *getIdentifier() { return ident.get(); }
+  inline std::string getName() { return ident->getName(); }
   ParamDeclr(uint32_t o, uint16_t l, Type t, std::unique_ptr<Identifier> i)
       : Declr(Kind::PARAM_DECLR, o, l), type(t), ident(std::move(i)) {}
 };
 
 class FuncDeclr : public Declr {
 private:
-  std::unique_ptr<Identifier> name;
+  std::unique_ptr<Identifier> ident;
   std::vector<std::unique_ptr<Declr>> params;
   Type returnType;
   std::unique_ptr<Block> block;
 
 public:
-  inline Identifier *getName() { return name.get(); }
+  inline Identifier *getIdentifier() { return ident.get(); }
+  inline std::string getName() { return ident->getName(); }
   inline std::vector<std::unique_ptr<Declr>> &getParams() { return params; }
   inline Type getReturnType() { return returnType; }
   inline Block *getBlock() { return block.get(); }
 
-  FuncDeclr(uint32_t o, uint16_t l, std::unique_ptr<Identifier> name,
+  FuncDeclr(uint32_t o, uint16_t l, std::unique_ptr<Identifier> i,
             std::vector<std::unique_ptr<Declr>> params, Type returnType,
             std::unique_ptr<Block> block)
-      : Declr(Kind::FUNC_DECLR, o, l), name(std::move(name)),
+      : Declr(Kind::FUNC_DECLR, o, l), ident(std::move(i)),
         params(std::move(params)), returnType(returnType),
         block(std::move(block)) {}
 };

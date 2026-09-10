@@ -8,7 +8,7 @@ programs   = decl* EOF ;
 
 (* Declaration *)
 Declr      = VarDeclr
-           | FuncDeclr 
+           | FuncDeclr
            ;
 
 VarDeclr   = type IDENTIFIER ("=" Expr)? ";" ;
@@ -18,7 +18,7 @@ params     = type IDENTIFIER ("," type IDENTIFIER)* ;
 (* Statements *)
 block      = "{" (decl | stmt)* "}" ;
 
-stmt       = returnStmt | assign ; 
+stmt       = returnStmt | assign ;
 assign     = IDENTIFIER "=" expr ";" ;
 returnStmt = "return" expr ";" ;
 

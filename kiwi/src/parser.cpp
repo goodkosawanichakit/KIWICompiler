@@ -159,7 +159,6 @@ std::unique_ptr<KIWI::AST::Block> KIWI::Parser::parseBlock() {
   }
 
   if (!expect(TokenType::RIGHT_BRACE)) {
-    // TODO: free items in stmts;
     return nullptr;
   }
 

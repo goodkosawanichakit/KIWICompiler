@@ -12,17 +12,25 @@ struct Scope {
   Scope *parent;
 
   Scope() : parent(nullptr) {}
+  Scope(Scope *p) : parent(p) {}
 };
 
 class SymbolTable {
 private:
+  Scope *currScope;
   std::vector<std::unique_ptr<Scope>> scopes;
 
 public:
-  void declareVar(AST::Declr *);
-  void declareFunc(AST::Declr *);
+  bool declareVar(AST::VarDeclr *);
+  void declareFunc(AST::FuncDeclr *);
 
-  SymbolTable() {}
+  void enterScope();
+  void leaveScope();
+
+  SymbolTable() {
+    scopes.push_back(std::make_unique<Scope>());
+    currScope = scopes.back().get();
+  }
 };
 
 class Semantic {
@@ -30,6 +38,9 @@ private:
   SymbolTable table;
 
 public:
+  void collectPass(const AST::Forest *);
+  bool analyze();
+
   Semantic();
 };
 } // namespace KIWI
